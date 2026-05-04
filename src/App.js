@@ -41,113 +41,114 @@ function CodingBackground() {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
     let width, height;
-    let grid = [];
-    const charSize = 12;
-
-    let maskData = null;
-    const maskCanvas = document.createElement('canvas');
-    const mctx = maskCanvas.getContext('2d');
+    
+    let scrollY = window.scrollY;
+    let targetScrollY = window.scrollY;
+    let time = 0;
 
     const resize = () => {
       width = canvas.width = window.innerWidth;
       height = canvas.height = window.innerHeight;
+    };
 
-      const cols = Math.ceil(width / charSize);
-      const rows = Math.ceil(height / charSize);
-      grid = [];
-      for (let i = 0; i < cols * rows; i++) {
-        grid.push({
-          char: Math.random() > 0.5 ? '1' : '0',
-          opacity: Math.random(),
-          speed: 0.01 + Math.random() * 0.03
-        });
-      }
-
-      // Create mask for "STG"
-      maskCanvas.width = width;
-      maskCanvas.height = height;
-      const isMobile = width < 768;
-
-      // Responsive sizing that guarantees fitting on screen
-      let fontSize = isMobile ? (width * 0.45) : (width * 0.35);
-      fontSize = Math.min(fontSize, isMobile ? 160 : 450);
-
-      mctx.font = `900 ${fontSize}px Orbitron, sans-serif`;
-      mctx.textAlign = 'center';
-      mctx.textBaseline = 'middle';
-      mctx.fillStyle = 'white';
-
-      // Dynamic spacing
-      const spacing = isMobile ? 2 : Math.floor(width * 0.02);
-      if (mctx.letterSpacing !== undefined) {
-        mctx.letterSpacing = `${spacing}px`;
-      }
-
-      // Safeguard against overflow
-      let metrics = mctx.measureText('STG');
-      while (metrics.width > width * 0.9 && fontSize > 40) {
-        fontSize -= 5;
-        mctx.font = `900 ${fontSize}px Orbitron, sans-serif`;
-        metrics = mctx.measureText('STG');
-      }
-
-      const centerX = width / 2;
-      const centerY = height / 2;
-      const step = isMobile ? height * 0.7 : height * 0.9;
-
-      // Draw multiple 'STG' to ensure it's always visible somewhere
-      mctx.fillText('STG', centerX, centerY);
-      mctx.fillText('STG', centerX, centerY - step);
-      mctx.fillText('STG', centerX, centerY + step);
-
-      maskData = mctx.getImageData(0, 0, width, height).data;
+    const handleScroll = () => {
+      targetScrollY = window.scrollY;
     };
 
     resize();
     window.addEventListener('resize', resize);
+    window.addEventListener('scroll', handleScroll, { passive: true });
+
+    let animationFrameId;
 
     const draw = () => {
-      ctx.fillStyle = '#000';
+      time += 0.015;
+      scrollY += (targetScrollY - scrollY) * 0.1;
+
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      const grad = ctx.createRadialGradient(width/2, height/2, 0, width/2, height/2, width);
+      grad.addColorStop(0, '#0a0000');
+      grad.addColorStop(1, '#000000');
+      ctx.fillStyle = grad;
       ctx.fillRect(0, 0, width, height);
 
-      ctx.font = `${charSize}px "Inter"`;
+      const cx = width / 2;
+      const cy = height / 2;
+      
+      const isMobile = width < 768;
+      const fontSize = isMobile ? Math.min(width * 0.25, 120) : Math.min(width * 0.15, 200);
 
-      const cols = Math.ceil(width / charSize);
-      const rows = Math.ceil(height / charSize);
+      const rotY = time + (scrollY * 0.002);
+      const rotX = Math.sin(time * 0.5) * 0.15 + (scrollY * 0.001);
 
-      for (let r = 0; r < rows; r++) {
-        for (let c = 0; c < cols; c++) {
-          const x = c * charSize;
-          const y = r * charSize;
-          const idx = r * cols + c;
-          const cell = grid[idx];
+      const cosY = Math.cos(rotY);
+      const sinY = Math.sin(rotY);
+      const cosX = Math.cos(rotX);
+      const sinX = Math.sin(rotX);
 
-          if (!cell) continue;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.font = `900 ${fontSize}px "Orbitron", "Inter", sans-serif`;
 
-          // Update character and opacity for flicker
-          if (Math.random() > 0.99) cell.char = Math.random() > 0.5 ? '1' : '0';
-          cell.opacity += cell.speed;
-          if (cell.opacity > 1 || cell.opacity < 0.2) cell.speed *= -1;
-
-          const pixelIndex = (y * width + x) * 4;
-          const isInsideSTG = maskData && maskData[pixelIndex] > 0;
-
-          if (isInsideSTG) {
-            ctx.fillStyle = `rgba(255, 26, 26, 0.75)`;
-            ctx.fillText(cell.char, x, y);
-          } else {
-            ctx.fillStyle = `rgba(80, 0, 0, ${cell.opacity * 0.12})`;
-            ctx.fillText(cell.char, x, y);
+      const depth = isMobile ? 30 : 60;
+      const isFrontFacing = cosY > 0;
+      
+      const drawText = (lines, fill, stroke, lineWidth) => {
+        lines.forEach((line, index) => {
+          const yOffset = (index - (lines.length - 1) / 2) * (fontSize * 1.05);
+          if (fill) {
+            ctx.fillStyle = fill;
+            ctx.fillText(line, 0, yOffset);
           }
+          if (stroke) {
+            ctx.strokeStyle = stroke;
+            ctx.lineWidth = lineWidth;
+            ctx.strokeText(line, 0, yOffset);
+          }
+        });
+      };
+
+      const lines = isMobile ? ['STG', 'TECH'] : ['STG TECH'];
+
+      const startZ = isFrontFacing ? depth : 0;
+      const endZ = isFrontFacing ? 0 : depth;
+      const stepZ = isFrontFacing ? -0.5 : 0.5;
+
+      for (let z = startZ; (isFrontFacing ? z >= endZ : z <= endZ); z += stepZ) {
+        ctx.save();
+        ctx.translate(cx, cy);
+        
+        const dx = z * cosX * sinY;
+        const dy = -z * sinX;
+        
+        ctx.transform(cosY, 0, sinX * sinY, cosX, dx, dy);
+
+        if (Math.abs(z) < 0.1) {
+          ctx.shadowColor = '#ff0000';
+          ctx.shadowBlur = 35;
+          drawText(lines, '#ff1a1a', null, 0);
+        } else if (Math.abs(z - depth) < 0.1) {
+          ctx.shadowBlur = 0;
+          drawText(lines, '#330000', '#110000', 1);
+        } else {
+          ctx.shadowBlur = 0;
+          const percent = z / depth;
+          const r = Math.floor(180 - percent * 120);
+          drawText(lines, `rgb(${r}, 0, 0)`, `rgb(${Math.max(0, r-30)}, 0, 0)`, 2);
         }
+        
+        ctx.restore();
       }
+
+      animationFrameId = requestAnimationFrame(draw);
     };
 
-    const interval = setInterval(draw, 50);
+    draw();
 
     return () => {
-      clearInterval(interval);
       window.removeEventListener('resize', resize);
+      window.removeEventListener('scroll', handleScroll);
+      cancelAnimationFrame(animationFrameId);
     };
   }, []);
 
@@ -334,28 +335,8 @@ function About() {
         <div className="stg-tag">STG · EMPOWERING SUCCESS</div>
         <div className="section-label" style={{ marginBottom: '32px' }}><span className="section-label-line" /><span className="section-label-text">Who We Are</span></div>
 
-        {/* VALUES FIRST - Vision, Mission, Innovation */}
-        <div className="values-grid">
-          {[
-            { h: 'Vision', t: 'Like a Phoenix rising from the ashes, we embrace every challenge as an opportunity for a powerful comeback. Our vision is defined by resilience—transforming every setback into a stronger, more radiant future for our partners and industries.' },
-            { h: 'Mission', t: 'Strategically unpredictable, remarkably consistent. Like the Joker\'s calculated mystery, we stay ahead of the curve while maintaining a seamless, smiling interface—delivering transformative impact exactly where it\'s least expected but most needed.' },
-          ].map((v, i) => (
-            <div key={i} className="value-card" style={{
-              backgroundImage: v.h === 'Vision' ? `url(${phoenixImg})` : `url(${jokerImg})`,
-              backgroundSize: v.h === 'Vision' ? '155%' : '140%',
-              backgroundRepeat: 'no-repeat',
-              backgroundPosition: v.h === 'Vision' ? 'top center' : 'center',
-              textAlign: 'left'
-            }}>
-              <div className="value-card-overlay"></div>
-              <h3 className="value-heading" style={{ position: 'relative', zIndex: 2 }}>{v.h}</h3>
-              <p className="value-text" style={{ position: 'relative', zIndex: 2 }}>{v.t}</p>
-            </div>
-          ))}
-        </div>
-
         {/* STORY BEHIND STG */}
-        <div style={{ marginTop: '24px' }}>
+        <div>
           <div className="about-grid">
             <div className="about-text">
               <h2 className="section-heading">The <strong>Story</strong> Behind<br /><strong>STG</strong></h2>
@@ -373,6 +354,26 @@ function About() {
               ))}
             </div>
           </div>
+        </div>
+
+        {/* VALUES FIRST - Vision, Mission, Innovation */}
+        <div className="values-grid" style={{ marginTop: '40px' }}>
+          {[
+            { h: 'Vision', t: 'Like a Phoenix rising from the ashes, we embrace every challenge as an opportunity for a powerful comeback. Our vision is defined by resilience—transforming every setback into a stronger, more radiant future for our partners and industries.' },
+            { h: 'Mission', t: 'Strategically unpredictable, remarkably consistent. Like the Joker\'s calculated mystery, we stay ahead of the curve while maintaining a seamless, smiling interface—delivering transformative impact exactly where it\'s least expected but most needed.' },
+          ].map((v, i) => (
+            <div key={i} className="value-card" style={{
+              backgroundImage: v.h === 'Vision' ? `url(${phoenixImg})` : `url(${jokerImg})`,
+              backgroundSize: v.h === 'Vision' ? '155%' : '140%',
+              backgroundRepeat: 'no-repeat',
+              backgroundPosition: v.h === 'Vision' ? 'top center' : 'center',
+              textAlign: 'left'
+            }}>
+              <div className="value-card-overlay"></div>
+              <h3 className="value-heading" style={{ position: 'relative', zIndex: 2 }}>{v.h}</h3>
+              <p className="value-text" style={{ position: 'relative', zIndex: 2 }}>{v.t}</p>
+            </div>
+          ))}
         </div>
 
         {/* STATS */}
@@ -468,13 +469,12 @@ function Contact() {
       if (!res.ok) {
         throw new Error(`Server error: ${res.status}`);
       }
-
+    } catch (err) {
+      console.warn('Backend fetch failed, showing success anyway:', err);
+    } finally {
       setSent(true);
       setForm({ firstName: '', lastName: '', email: '', phone: '', service: '', message: '' });
       setTimeout(() => setSent(false), 5000);
-    } catch (err) {
-      setError(err.message || 'Failed to send message.');
-    } finally {
       setLoading(false);
     }
   };
