@@ -41,7 +41,7 @@ function CodingBackground() {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
     let width, height;
-    
+
     let scrollY = window.scrollY;
     let targetScrollY = window.scrollY;
     let time = 0;
@@ -66,7 +66,7 @@ function CodingBackground() {
       scrollY += (targetScrollY - scrollY) * 0.1;
 
       ctx.setTransform(1, 0, 0, 1, 0, 0);
-      const grad = ctx.createRadialGradient(width/2, height/2, 0, width/2, height/2, width);
+      const grad = ctx.createRadialGradient(width / 2, height / 2, 0, width / 2, height / 2, width);
       grad.addColorStop(0, '#0a0000');
       grad.addColorStop(1, '#000000');
       ctx.fillStyle = grad;
@@ -74,7 +74,7 @@ function CodingBackground() {
 
       const cx = width / 2;
       const cy = height / 2;
-      
+
       const isMobile = width < 768;
       const fontSize = isMobile ? Math.min(width * 0.25, 120) : Math.min(width * 0.15, 200);
 
@@ -92,7 +92,7 @@ function CodingBackground() {
 
       const depth = isMobile ? 30 : 60;
       const isFrontFacing = cosY > 0;
-      
+
       const drawText = (lines, fill, stroke, lineWidth) => {
         lines.forEach((line, index) => {
           const yOffset = (index - (lines.length - 1) / 2) * (fontSize * 1.05);
@@ -117,10 +117,10 @@ function CodingBackground() {
       for (let z = startZ; (isFrontFacing ? z >= endZ : z <= endZ); z += stepZ) {
         ctx.save();
         ctx.translate(cx, cy);
-        
+
         const dx = z * cosX * sinY;
         const dy = -z * sinX;
-        
+
         ctx.transform(cosY, 0, sinX * sinY, cosX, dx, dy);
 
         if (Math.abs(z) < 0.1) {
@@ -134,9 +134,9 @@ function CodingBackground() {
           ctx.shadowBlur = 0;
           const percent = z / depth;
           const r = Math.floor(180 - percent * 120);
-          drawText(lines, `rgb(${r}, 0, 0)`, `rgb(${Math.max(0, r-30)}, 0, 0)`, 2);
+          drawText(lines, `rgb(${r}, 0, 0)`, `rgb(${Math.max(0, r - 30)}, 0, 0)`, 2);
         }
-        
+
         ctx.restore();
       }
 
@@ -157,7 +157,7 @@ function CodingBackground() {
       ref={canvasRef}
       className="coding-background"
       style={{
-        position: 'fixed',
+        position: 'absolute',
         inset: 0,
         zIndex: -1,
         pointerEvents: 'none',
@@ -236,6 +236,8 @@ function Hero() {
   const scrollTo = id => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
   return (
     <section className="hero" id="home">
+      <CodingBackground />
+      <div className="bg-overlay" />
       <div className="hero-content">
         <div className="hero-stg-badge-wrap">
           <div className="hero-stg-badge">STG <span className="text-red">TECH</span></div>
@@ -246,7 +248,7 @@ function Hero() {
           <div className="hero-eyebrow-line" />
         </div>
         <h1 className="hero-title">
-          We Build
+          <span className="hero-title-bold">We Build</span>
           <span className="hero-title-bold">Digital</span>
           <span className="hero-title-accent">Experiences</span>
         </h1>
@@ -363,12 +365,14 @@ function About() {
             { h: 'Mission', t: 'Strategically unpredictable, remarkably consistent. Like the Joker\'s calculated mystery, we stay ahead of the curve while maintaining a seamless, smiling interface—delivering transformative impact exactly where it\'s least expected but most needed.' },
           ].map((v, i) => (
             <div key={i} className="value-card" style={{
-              backgroundImage: v.h === 'Vision' ? `url(${phoenixImg})` : `url(${jokerImg})`,
-              backgroundSize: v.h === 'Vision' ? '155%' : '140%',
-              backgroundRepeat: 'no-repeat',
-              backgroundPosition: v.h === 'Vision' ? 'top center' : 'center',
               textAlign: 'left'
             }}>
+              <div className="value-card-bg" style={{
+                backgroundImage: v.h === 'Vision' ? `url(${phoenixImg})` : `url(${jokerImg})`,
+                backgroundSize: v.h === 'Vision' ? '155%' : '140%',
+                backgroundRepeat: 'no-repeat',
+                backgroundPosition: v.h === 'Vision' ? 'top center' : 'center'
+              }}></div>
               <div className="value-card-overlay"></div>
               <h3 className="value-heading" style={{ position: 'relative', zIndex: 2 }}>{v.h}</h3>
               <p className="value-text" style={{ position: 'relative', zIndex: 2 }}>{v.t}</p>
@@ -705,16 +709,14 @@ export default function App() {
 
   return (
     <div className="app-container">
-      <CodingBackground />
-      <div className="bg-overlay" />
       <Navbar scrolled={scrolled} />
 
       <main>
         <Hero />
-        <About />
         <Services />
         <Projects />
         <Partners />
+        <About />
         <Contact />
       </main>
       <Footer onLegalClick={setLegalType} />

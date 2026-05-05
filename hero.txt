@@ -1,0 +1,31 @@
+function Hero() {
+  const scrollTo = id => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+  return (
+    <section className="hero" id="home">
+      <div className="hero-content">
+        <div className="hero-stg-badge-wrap">
+          <div className="hero-stg-badge">STG <span className="text-red">TECH</span></div>
+        </div>
+        <div className="hero-eyebrow">
+          <div className="hero-eyebrow-line" />
+          <span className="hero-eyebrow-text" style={{ color: '#ffffff' }}>Global Software Powerhouse</span>
+          <div className="hero-eyebrow-line" />
+        </div>
+        <h1 className="hero-title">
+          We Build
+          <span className="hero-title-bold">Digital</span>
+          <span className="hero-title-accent">Experiences</span>
+        </h1>
+        <p className="hero-subtitle">Crafting innovative technology solutions that transform businesses and elevate user experiences — powered by intelligence, built for the future.</p>
+        <div className="hero-actions">
+          <button className="btn-red" onClick={() => scrollTo('services')}>Explore Our Work <span>→</span></button>
+          <button className="btn-ghost" onClick={() => scrollTo('contact')}>Get In Touch</button>
+        </div>
+      </div>
+      <div className="hero-scroll-indicator">
+        <div className="hero-scroll-line" />
+        <span className="hero-scroll-text">Scroll</span>
+      </div>
+    </section>
+  );
+}

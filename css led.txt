@@ -1,0 +1,33 @@
+/* ==============================================
+   LED GLOW EFFECT FOR "We Build Digital" HEADINGS
+   ============================================== */
+
+/* Target the specific heading spans */
+.hero-title-bold,
+.hero-title-accent {
+  transition: text-shadow 0.1s ease-in-out, color 0.1s ease-in-out;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  position: relative;
+  z-index: 2;
+  will-change: text-shadow, color;
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+/* PRIMARY LED GLOW FOR "DIGITAL" (BOLD PART) */
+.hero-title-bold {
+  color: #ff1a1a;
+  animation: ledIntensePulse 1.2s infinite alternate ease-in-out;
+  filter: drop-shadow(0 0 6px rgba(255, 26, 26, 0.9));
+}
+
+/* SECONDARY GLOW FOR "EXPERIENCES" (OUTLINED/ACCENT PART) */
+.hero-title-accent {
+  color: rgba(255, 255, 255, 0.95);
+  -webkit-text-stroke: 1.8px #ff3333;
+  text-stroke: 1.8px #ff3333;
+  animation: ledOutlinePulse 1.6s infinite alternate;
+  filter: drop-shadow(0 0 4px rgba(255, 51, 51, 0.7));
+}

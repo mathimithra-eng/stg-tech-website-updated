@@ -2,7 +2,7 @@
    LAYOUT UTILS
    Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â */
 :root {
-      --bg-base: #000;
+      --bg-base: transparent;
      --bg-card: rgba(8, 8, 8, 0.4);
     --text-primary: #ffffff;
     --text-secondary: #a0a0a0;
@@ -130,7 +130,7 @@ body,
 }
 
 .bg-overlay {
-    position: absolute;
+    position: fixed;
     inset: 0;
     z-index: -1;
     pointer-events: none;
@@ -139,7 +139,7 @@ body,
 
 /* CODING BACKGROUND */
 .coding-background {
-    position: absolute;
+    position: fixed;
     inset: 0;
     z-index: -2;
     pointer-events: none;
@@ -348,12 +348,10 @@ body,
 Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â */
 .hero {
     position: relative;
-    min-height: 100vh;
+    min-height: 90vh;
     display: flex;
     align-items: center;
     z-index: 10;
-    overflow: hidden;
-    background: #000;
 }
 
 .hero-content {
@@ -596,13 +594,13 @@ body,
     object-fit: cover;
     border-radius: 4px;
     margin-bottom: 24px;
-    opacity: 0.7;
-    mix-blend-mode: normal;
+    opacity: 0.3;
+    mix-blend-mode: lighten;
     transition: all 0.4s;
 }
 
 .service-item:hover .service-item-img {
-    opacity: 1.0;
+    opacity: 0.8;
     transform: scale(1.05);
 }
 
@@ -908,20 +906,20 @@ body,
 .value-card-bg {
     position: absolute;
     inset: 0;
-    opacity: 0.6;
-    mix-blend-mode: normal;
+    opacity: 0.3;
+    mix-blend-mode: lighten;
     transition: opacity 0.4s ease;
     z-index: 0;
 }
 
 .value-card:hover .value-card-bg {
-    opacity: 1.0;
+    opacity: 0.5;
 }
 
 .value-card-overlay {
     position: absolute;
     inset: 0;
-    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.7));
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.8));
     z-index: 1;
 }
 
@@ -1496,15 +1494,6 @@ body,
 
     .values-grid {
         grid-template-columns: 1fr;
-    }
-
-    .value-card {
-        min-height: 450px; /* Increase height on mobile for better image visibility */
-    }
-
-    .value-card-bg {
-        opacity: 0.8; /* Even higher base visibility on mobile */
-        background-position: center !important; /* Ensure subjects are centered */
     }
 
     .stats-bar {
